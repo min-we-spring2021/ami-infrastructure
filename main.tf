@@ -1,10 +1,16 @@
-
 provider "aws" {
-  region     = "us-west-1"
-  access_key = secrets.AWS_ACCESS_KEY
-  secret_key = secrets.AWS_SECRET_KEY
+  region                  = "us-east-1"
+  shared_credentials_file = "~/.aws/credentials"
+  profile                 = "ami"
 }
-resource "aws_iam_policy" "policy" {
+data "aws_caller_identity" "current" {}
+output "caller_user" {
+  value = data.aws_caller_identity.current.user_id
+}
+
+
+
+resource "aws_iam_policy" "gh-ec2-ami" {
   name        = "gh-ec2-ami"
   path        = "/"
   description = "provides the minimal set permissions necessary for Packer to work:"
@@ -59,8 +65,10 @@ resource "aws_iam_policy" "policy" {
     ]
   })
 }
+
+
 resource "aws_iam_user_policy_attachment" "test-attach" {
-  user       = aws_iam_user.ghactions-ami.name
+  user       = "ghactions-ami"
   policy_arn = aws_iam_policy.gh-ec2-ami.arn
 }
 
